@@ -1,3 +1,4 @@
+import re
 import json
 import requests
 import validators
@@ -67,9 +68,14 @@ if url_privacypolicy:
 
     # Produce a case-insensitive word frequency count for all the visible text on the page
     word_counts = {}
-    for word in soup.get_text().split():
-        word = word.lower()
-        word_counts[word] = word_counts.get(word, 0) + 1
+    soup_text = soup.get_text()
+    # Use regex to remove non-word characters
+    for word in re.split(r'\W+', soup_text):
+        # If word is not an empty string
+        if word:
+            word = word.lower()
+            word_counts[word] = word_counts.get(word, 0) + 1
+    word_counts = dict(sorted(word_counts.items(), key=lambda item: item[1], reverse=True))
     json.dump(word_counts, open('word_counts_privacypolicy.json', 'w'), indent=2)
 else:
     print('Privacy Policy not found.')
