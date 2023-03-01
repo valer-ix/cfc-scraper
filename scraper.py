@@ -62,7 +62,9 @@ class Scraper:
                     if urlparse(tag_url).netloc != self.url_target_netloc:
                         self.external_resources.append(tag_url)
         # Write to JSON
-        json.dump(self.external_resources, open('output/external_resources.json', 'w'), indent=2)
+        filepath = 'output/external_resources.json'
+        json.dump(self.external_resources, open(filepath, 'w'), indent=2)
+        print(f'External resources written to <{filepath}>.')
 
     def get_privacypolicy_url(self) -> None:
         """Enumerate the page's hyperlinks and identify the location of the "Privacy Policy" page"""
@@ -73,6 +75,7 @@ class Scraper:
             if link.has_attr('href'):
                 if 'privacy' in link['href']:
                     self.url_privacypolicy = link['href']
+                    print('Privacy Policy URL found.')
                     break
         if self.url_privacypolicy:
             # Make absolute url from relative
@@ -95,7 +98,9 @@ class Scraper:
                     word = word.lower()
                     word_counts[word] = word_counts.get(word, 0) + 1
             word_counts = dict(sorted(word_counts.items(), key=lambda item: item[1], reverse=True))
-            json.dump(word_counts, open('output/word_counts_privacypolicy.json', 'w'), indent=2)
+            filepath = 'output/word_counts_privacypolicy.json'
+            json.dump(word_counts, open(filepath, 'w'), indent=2)
+            print(f'Word counts written to <{filepath}>.')
 
 
 if __name__ == '__main__':
@@ -103,4 +108,3 @@ if __name__ == '__main__':
     scraper.write_external_resource_urls_to_json(scraper.url_target)
     scraper.get_privacypolicy_url()
     scraper.write_word_count_to_json(scraper.url_privacypolicy)
-    print('Success')
