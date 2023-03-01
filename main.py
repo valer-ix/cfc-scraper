@@ -4,15 +4,13 @@ import validators
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
+
 # Scrape the index webpage
 url_target = 'https://www.cfcunderwriting.com/'
 url_target_netloc = urlparse(url_target).netloc
 response = requests.get(url_target)
 response.raise_for_status()
 soup = BeautifulSoup(response.text, 'html.parser')
-
-
-x = soup.find_all(True)
 
 
 # Write a list of all externally loaded resources to JSON
@@ -47,9 +45,15 @@ for tag in soup.find_all(True):
             if urlparse(tag_url).netloc != url_target_netloc:
                 external_resources.append(tag_url)
 # Write to JSON
-json.dump(external_resources, open('external_resources.json', 'w'))
+json.dump(external_resources, open('external_resources.json', 'w'), indent=2)
+
 
 # Enumerate the page's hyperlinks and identify the location of the "Privacy Policy" page
+url_privacypolicy = None
+for link in soup.find_all('a'):
+    if link.has_attr('href'):
+        if 'privacy' in link['href']:
+            url_privacypolicy = link['href']
 
 # Scrape the content of the privacy policy URL
 
