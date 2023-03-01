@@ -1,11 +1,15 @@
 import re
 import json
+import logging
 from typing import List, Optional
 
 import requests
 import validators
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
+
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s:%(levelname)s - %(message)s')
 
 
 class Scraper:
@@ -64,25 +68,25 @@ class Scraper:
         # Write to JSON
         filepath = 'output/external_resources.json'
         json.dump(self.external_resources, open(filepath, 'w'), indent=2)
-        print(f'External resources written to <{filepath}>.')
+        logging.info(f'External resources written to <{filepath}>.')
 
     def get_privacypolicy_url(self) -> None:
         """Enumerate the page's hyperlinks and identify the location of the "Privacy Policy" page"""
         if not self.soup:
-            print('Missing soup; must scrape a URL first.')
+            logging.error('Missing soup; must scrape a URL first.')
             return
         for link in self.soup.find_all('a'):
             if link.has_attr('href'):
                 if 'privacy' in link['href']:
                     self.url_privacypolicy = link['href']
-                    print('Privacy Policy URL found.')
+                    logging.info('Privacy Policy URL found.')
                     break
         if self.url_privacypolicy:
             # Make absolute url from relative
             if self.url_privacypolicy.startswith('/'):
                 self.url_privacypolicy = urljoin(self.url_target, self.url_privacypolicy)
         else:
-            print('Privacy Policy not found.')
+            logging.warning('Privacy Policy not found.')
 
     def write_word_count_to_json(self, url: str) -> None:
         """Produce a case-insensitive word frequency count for all the visible text on the page"""
@@ -100,7 +104,9 @@ class Scraper:
             word_counts = dict(sorted(word_counts.items(), key=lambda item: item[1], reverse=True))
             filepath = 'output/word_counts_privacypolicy.json'
             json.dump(word_counts, open(filepath, 'w'), indent=2)
-            print(f'Word counts written to <{filepath}>.')
+            logging.info(f'Word counts written to <{filepath}>.')
+        else:
+            logging.error('URL invalid.')
 
 
 if __name__ == '__main__':
