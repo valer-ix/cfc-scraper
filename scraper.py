@@ -66,6 +66,9 @@ class Scraper:
 
     def get_privacypolicy_url(self) -> None:
         """Enumerate the page's hyperlinks and identify the location of the "Privacy Policy" page"""
+        if not self.soup:
+            print('Missing soup; must scrape a URL first.')
+            return
         for link in self.soup.find_all('a'):
             if link.has_attr('href'):
                 if 'privacy' in link['href']:
