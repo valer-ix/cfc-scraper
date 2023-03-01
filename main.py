@@ -1,7 +1,7 @@
 import json
 import requests
 import validators
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 
 
@@ -55,6 +55,15 @@ for link in soup.find_all('a'):
         if 'privacy' in link['href']:
             url_privacypolicy = link['href']
 
+
 # Scrape the content of the privacy policy URL
+if url_privacypolicy:
+    # Make absolute url from relative
+    if url_privacypolicy.startswith('/'):
+        url_privacypolicy = urljoin(url_target, url_privacypolicy)
+    response = requests.get(url_privacypolicy)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, 'html.parser')
+
 
 # Produce a case-insensitive word frequency count for all the visible text on the page
