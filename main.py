@@ -65,5 +65,11 @@ if url_privacypolicy:
     response.raise_for_status()
     soup = BeautifulSoup(response.text, 'html.parser')
 
-
-# Produce a case-insensitive word frequency count for all the visible text on the page
+    # Produce a case-insensitive word frequency count for all the visible text on the page
+    word_counts = {}
+    for word in soup.get_text().split():
+        word = word.lower()
+        word_counts[word] = word_counts.get(word, 0) + 1
+    json.dump(word_counts, open('word_counts_privacypolicy.json', 'w'), indent=2)
+else:
+    print('Privacy Policy not found.')
